@@ -3,3 +3,55 @@
  * @file proxythis.module
  * TODO: Enter file description here.
  */
+
+/**
+ * Implements hook_menu().
+ */
+function proxythis_menu() {
+  $items = array();
+  $path = variable_get('proxythis_path', $default = 'proxythis');
+  $title = variable_get('proxythis_title', $defualt = 'Proxy URL Converter.');
+  $items[$path] = array(
+    'title' => $title,
+    'page callback' => 'proxythis_view',
+    'access callback' => TRUE,
+    );
+  
+  return $items;
+}
+
+function proxythis_view(){
+  $form =  drupal_get_form('proxythis_form');
+  
+  return $form;
+}
+
+
+function proxythis_form($form, &$form_state){
+  var_dump($form_state);
+  $form['url'] = array(
+      '#title' => t('URL to be Converted'),
+      '#type' => 'textfield',
+      '#requiered' => TRUE,
+      '#default_value' => '',
+      '#attributes' => array(
+        'placeholder' =>'http://www.example.com'
+        ),
+    );
+  if($form_state['submitted']){
+    $form['result'] = array(
+        '#type' => 'item',
+        '#markup' => $form_state['values']['url'] . " changed!",
+      );
+  }
+  $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => 'submit',
+    );
+  
+  
+  return $form;
+
+
+}
+
