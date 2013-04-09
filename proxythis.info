@@ -1,4 +1,5 @@
 name = Proxy This - URL converter.
-description = Converts URLs based on a form block for an proxy service.
+description = Converts URLs based on a form for an proxy service.
 package = Custom
 core = 7.x
+configure = admin/config/proxythis
