@@ -1,7 +1,8 @@
 <?php
 /**
  * @file proxythis.module
- * TODO: Enter file description here.
+ * 
+ * 
  */
 
 /**
@@ -16,8 +17,6 @@ function proxythis_menu() {
     'page callback' => 'proxythis_view',
     'access callback' => TRUE,
     );
-  
-
   $items['admin/config/proxythis'] = array(
     'title' => 'ProxyThis Module',
     'description' => 'Settings for the proxy this module.',
@@ -28,13 +27,17 @@ function proxythis_menu() {
     );  
   return $items;
 }
-
+/**
+ * render furntion for hook_menu();
+ */
 function proxythis_view(){
   $form =  drupal_get_form('proxythis_form');
   
   return $form;
 }
-
+/**
+ * Rendre funation for the form to be submitted.
+ */
 
 function proxythis_form($form, &$form_state){
   
@@ -42,11 +45,11 @@ function proxythis_form($form, &$form_state){
       '#title' => t('URL to be Converted'),
       '#type' => 'textfield',
       '#requiered' => TRUE,
-      '#default_value' => '',
       '#attributes' => array(
         'placeholder' =>'http://www.example.com'
         ),
     );
+
   if($form_state['submitted']){
     //stating a shorted variable
     $modUrl = variable_get('proxythis_pattern', $default = 'http://ezproxy.neu.edu/login?url=') . $form_state['values']['url'];
