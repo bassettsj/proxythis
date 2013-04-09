@@ -63,15 +63,12 @@ function proxythis_form($form, &$form_state){
           ),
         '#weight' => 10,
       );
-    //get path
+    //get the module install path
     $path = drupal_get_path('module','proxythis');
     $form['#attached']['js']= array(
        $path .'/js/ZeroClipboard.min.js',
        $path .'/js/init.js',
       );
-    // $form['debug'] =  array(
-    //   '#markup' => drupal_get_path('module','proxythis'),
-    //   );
     $form['copy_link'] = array(
         '#markup' => '<a href="#" id="copy-dynamic" data-clipboard-text="'.$modUrl.'">' . t('Copy to Clipboard') . '</a>',
         '#weight' => 12, 
@@ -80,7 +77,8 @@ function proxythis_form($form, &$form_state){
         '#markup' => l(t('Reset'), variable_get('proxythis_path', $default = 'proxythis')),
         '#weight' => 200,
       );
-  }
+    $form['submit']['#attributes'] = array('style' => 'display:none');
+  } //end if form submitted
   
   $form['submit'] = array(
       '#type' => 'submit',
@@ -102,16 +100,27 @@ function proxythis_form_submit($form, &$form_state){
  * Validation function for proxythis_form()
  */
 function proxythis_form_validate($form, &$form_state){
+  
+
   $url = $form_state['values']['url'];
   
   //check to see if the string starts with  http:// or https:// if it does..
   if (0 !== stripos($url, 'http://') && 0 !== stripos($url, 'https://')){
     $url = 'http://'.$url;
   }
-
+  
+  //check to see if the string already begins with the pattern.
   if(0 === stripos($url, variable_get('proxythis_pattern', $default = 'http://ezproxy.neu.edu/login?url='))){
     form_set_error('url',t('This URL is already proxied, no change needed!'));
   }
+
+  //check to see if the string was proxied from the old pattern then replace it.
+  if (preg_match("/\.ilsprod\.lib\.neu\.edu/", $url)){
+    $url = preg_replace("/\.ilsprod\.lib\.neu\.edu/", '', $url);
+    $url = preg_replace("/:\/\/[0-9]-/", "://", $url);
+  }
+
+  //check to see if it is a valid url.
   if(!filter_var($url, FILTER_VALIDATE_URL)){
     form_set_error('url',t('Please provide a valid url.'));
   }
