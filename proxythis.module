@@ -22,8 +22,8 @@ function proxythis_menu() {
     'title' => 'ProxyThis Module',
     'description' => 'Settings for the proxy this module.',
     'page callback' => 'drupal_get_form',
-    'page arguments' => 'proxythis_admin_settings',
-    'accees callback' => array('access administration pages'),
+    'page arguments' => array('proxythis_admin_settings'),
+    'access arguments' => array('access administration pages'),
 
     );  
   return $items;
@@ -56,10 +56,12 @@ function proxythis_form($form, &$form_state){
         '#type' => 'textfield',
         '#disabled' => TRUE,
         '#attributes'=> array(
-          'value' => $form_state['values']['url'] . ' something more!',
+          'value' => $form_state['values']['url'] . variable_get('proxythis_pattern', $default = '.proxied'),
           ),
-
-
+      );
+    $form['reset'] = array(
+        '#markup' => l(t('Reset'), variable_get('proxythis_path', $default = 'proxythis')),
+        '#weight' => 200,
       );
   }
   
@@ -70,12 +72,46 @@ function proxythis_form($form, &$form_state){
   
   
   return $form;
-
-
 }
-
+/**
+ * Submit function for proxythis_form()
+ */
 function proxythis_form_submit($form, &$form_state){
   $form_state['rebuild'] = TRUE;
 }
 
+/**
+ * Validation function for proxythis_form()
+ */
+function proxythis_form_validate($form, &$form_state){
+  $url = $form_state['values']['url'];
+  if(!filter_var($url, FILTER_VALIDATE_URL)){
+    form_set_error('url',t('Please provide a valid url.'));
+  }
+}
 
+/**
+ * Builds and returns the settings form.
+ */
+
+function proxythis_admin_settings(){
+  $form['proxythis_path'] = array(
+      '#type' => 'textarea',
+      '#title' => t('Path the form should be accessible from'),
+      '#default_value' => variable_get('proxythis_path', $defualt = 'proxythis'),
+      '#description' => t('@TODO'),
+    );
+  $form['proxythis_title'] = array(
+      '#type' => 'textarea',
+      '#title' => t('The title of the form page.'),
+      '#default_value' => variable_get('proxythis_title', $defualt = 'Proxy URL Converter.'),
+      '#description' => t('@TODO'),
+    );
+  $form['proxythis_pattern'] = array(
+      '#type' => 'textarea',
+      '#title' => t('Pattern to modify the url.'),
+      '#default_value' => variable_get('proxythis_pattern', $default = '.proxied'),
+      '#description' => t('@TODO'),
+    );
+  return system_settings_form($form);
+}
