@@ -32,7 +32,6 @@ function proxythis_menu() {
  */
 function proxythis_view(){
   $form =  drupal_get_form('proxythis_form');
-  
   return $form;
 }
 /**
@@ -154,4 +153,36 @@ function proxythis_admin_settings(){
       '#description' => t('Adds to the front of the resource link.'),
     );
   return system_settings_form($form);
+}
+
+
+/**
+ * Implements hook_block_info().
+ */
+function proxythis_block_info() {
+  $blocks = array();
+
+  $blocks['proxythis'] = array(
+      'info' => t('Proxy this - URL Converter'),
+      'cache' => DRUPAL_NO_CACHE,
+      'status' => 0,
+    );
+
+  return $blocks;
+}
+
+
+
+/**
+ * Implements hook_block_view().
+ */
+function proxythis_block_view($delta = '') {
+  $blocks = array();
+
+  switch($delta){
+    case 'proxythis':
+      $block['content'] = proxythis_view();
+      break;
+  }
+  return $block;
 }
