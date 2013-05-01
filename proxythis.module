@@ -5,28 +5,7 @@
  * 
  */
 
-/**
- * Implements hook_menu().
- */
-function proxythis_menu() {
-  $items = array();
-  $path = variable_get('proxythis_path', $default = 'proxythis');
-  $title = variable_get('proxythis_title', $defualt = 'Proxy URL Converter.');
-  $items[$path] = array(
-    'title' => $title,
-    'page callback' => 'proxythis_view',
-    'access callback' => TRUE,
-    );
-  $items['admin/config/user-interface/proxythis'] = array(
-    'title' => 'ProxyThis Module',
-    'description' => 'Settings for the proxy this module.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('proxythis_admin_settings'),
-    'access arguments' => array('access administration pages'),
-    'type' => MENU_NORMAL_ITEM,
-    );  
-  return $items;
-}
+
 /**
  * render furntion for hook_menu();
  */
@@ -129,32 +108,6 @@ function proxythis_form_validate($form, &$form_state){
     form_set_error('url',t('Please provide a valid url.'));
   }
   return $form_state['values']['url'] = $url;
-}
-
-/**
- * Builds and returns the settings form.
- */
-
-function proxythis_admin_settings(){
-  $form['proxythis_path'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Path the form should be accessible from'),
-      '#default_value' => variable_get('proxythis_path', $defualt = 'proxythis'),
-      '#description' => t('@TODO'),
-    );
-  $form['proxythis_title'] = array(
-      '#type' => 'textfield',
-      '#title' => t('The title of the form page.'),
-      '#default_value' => variable_get('proxythis_title', $defualt = 'Proxy URL Converter.'),
-      '#description' => t('@TODO'),
-    );
-  $form['proxythis_pattern'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Pattern to modify the url.'),
-      '#default_value' => variable_get('proxythis_pattern', $default = 'http://ezproxy.neu.edu/login?url='),
-      '#description' => t('Adds to the front of the resource link.'),
-    );
-  return system_settings_form($form);
 }
 
 
