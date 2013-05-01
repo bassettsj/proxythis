@@ -1,5 +1,5 @@
 name = Proxy This - URL converter.
 description = Converts URLs based on a form for an proxy service.
-package = Custom
+package = User Interface
 core = 7.x
-configure = admin/config/proxythis
+configure = admin/config/user-interface/proxythis

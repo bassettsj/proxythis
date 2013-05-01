@@ -17,7 +17,7 @@ function proxythis_menu() {
     'page callback' => 'proxythis_view',
     'access callback' => TRUE,
     );
-  $items['admin/config/proxythis'] = array(
+  $items['admin/config/user-interface/proxythis'] = array(
     'title' => 'ProxyThis Module',
     'description' => 'Settings for the proxy this module.',
     'page callback' => 'drupal_get_form',
@@ -47,6 +47,7 @@ function proxythis_form($form, &$form_state){
       '#attributes' => array(
         'placeholder' =>'http://www.example.com'
         ),
+      '#size' => 30,
     );
 
   if($form_state['submitted']){
@@ -64,6 +65,7 @@ function proxythis_form($form, &$form_state){
           'value' => $modUrl,
           ),
         '#weight' => 10,
+        '#size' => 30,
       );
     //get the module install path
     $path = drupal_get_path('module','proxythis');
@@ -164,7 +166,6 @@ function proxythis_block_info() {
 
   $blocks['proxythis'] = array(
       'info' => t('Proxy this - URL Converter'),
-      'cache' => DRUPAL_NO_CACHE,
       'status' => 0,
     );
 
@@ -186,3 +187,30 @@ function proxythis_block_view($delta = '') {
   }
   return $block;
 }
+
+/**
+ * Implements hook_block_configure().
+ */
+function proxythis_block_configure($delta = '') {
+  $form = array();
+
+  if ($delta == 'proxythis'){
+    $form['proxythis_pattern'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Pattern to modify the url.'),
+      '#default_value' => variable_get('proxythis_pattern', $default = 'http://ezproxy.neu.edu/login?url='),
+      '#description' => t('Adds to the front of the resource link.'),
+    );
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function proxythis_block_save($delta = '', $edit = array()) {
+  if($delta == 'proxythis'){
+    variable_set('proxythis_pattern', $edit['proxythis_pattern']);
+  }
+}
+
