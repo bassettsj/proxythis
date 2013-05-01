@@ -26,9 +26,13 @@ function proxythis_form($form, &$form_state){
       '#attributes' => array(
         'placeholder' =>'http://www.example.com'
         ),
-      '#size' => 30,
+      '#size' => 45,
     );
-
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => 'submit',
+      '#weight' => 11, 
+    );
   if($form_state['submitted']){
     //stating a shorted variable
     $modUrl = variable_get('proxythis_pattern', $default = 'http://ezproxy.neu.edu/login?url=') . $form_state['values']['url'];
@@ -44,7 +48,7 @@ function proxythis_form($form, &$form_state){
           'value' => $modUrl,
           ),
         '#weight' => 10,
-        '#size' => 30,
+        '#size' => 45,
       );
     //get the module install path
     $path = drupal_get_path('module','proxythis');
@@ -57,21 +61,22 @@ function proxythis_form($form, &$form_state){
         '#weight' => 12, 
       );
     $form['reset'] = array(
-        '#markup' => l(t('Reset'), variable_get('proxythis_path', $default = 'proxythis')),
+        
+        '#markup' => '<a href="#" onClick="window.location.reload();">Reset</a>',
         '#weight' => 200,
       );
-    $form['submit']['#attributes'] = array('style' => 'display:none');
+    $form['submit']['#attributes']['style'] = 'display:none';
   } //end if form submitted
   
-  $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => 'submit',
-      '#weight' => 11, 
-    );
+
   
   
   return $form;
 }
+
+
+
+
 /**
  * Submit function for proxythis_form()
  */
