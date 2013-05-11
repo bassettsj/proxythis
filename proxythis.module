@@ -61,7 +61,6 @@ function proxythis_form($form, &$form_state){
         '#weight' => 12, 
       );
     $form['reset'] = array(
-        
         '#markup' => '<a href="#" onClick="window.location.reload();">Reset</a>',
         '#weight' => 200,
       );
@@ -93,7 +92,7 @@ function proxythis_form_validate($form, &$form_state){
   $url = $form_state['values']['url'];
   
   //check to see if the string starts with  http:// or https:// if it does..
-  if (0 !== stripos($url, 'http://') && 0 !== stripos($url, 'https://')){
+  if (0 !== stripos($url, 'http://') || 0 !== stripos($url, 'https://')){
     $url = 'http://'.$url;
   }
   
@@ -102,16 +101,18 @@ function proxythis_form_validate($form, &$form_state){
     form_set_error('url',t('This URL is already proxied, no change needed!'));
   }
 
+  //check to see if it is a valid url.
+  if(!filter_var($url, FILTER_VALIDATE_URL)){
+    form_set_error('url',t('Please provide a valid url.'));
+  }
+  
   //check to see if the string was proxied from the old pattern then replace it.
   if (preg_match("/\.ilsprod\.lib\.neu\.edu/", $url)){
     $url = preg_replace("/\.ilsprod\.lib\.neu\.edu/", '', $url);
     $url = preg_replace("/:\/\/[0-9]-/", "://", $url);
   }
 
-  //check to see if it is a valid url.
-  if(!filter_var($url, FILTER_VALIDATE_URL)){
-    form_set_error('url',t('Please provide a valid url.'));
-  }
+
   return $form_state['values']['url'] = $url;
 }
 
@@ -159,6 +160,24 @@ function proxythis_block_configure($delta = '') {
       '#default_value' => variable_get('proxythis_pattern', $default = 'http://ezproxy.neu.edu/login?url='),
       '#description' => t('Adds to the front of the resource link.'),
     );
+    $form['proxythis_regex_search'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Pattern to modify the url.'),
+      '#default_value' => variable_get('proxythis_regex_search', $default = 'http://ezproxy.neu.edu/login?url='),
+      '#description' => t('Adds to the front of the resource link.'),
+      );
+    $form['proxythis_regex_replace'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Pattern to modify the url.'),
+      '#default_value' => variable_get('proxythis_regex_replace', $default = 'http://ezproxy.neu.edu/login?url='),
+      '#description' => t('Adds to the front of the resource link.'),
+      );
+    $form['proxythis_regex_validation'] = array(
+      '#type' => 'textfield',
+      '#title' => t('The regular expression to test to see if the url is already proxied.'),
+      '#default_value' => variable_get('proxythis_regex_validation', $default = 'http://ezproxy.neu.edu/login?url='),
+      '#description' => t('Adds to the front of the resource link.'),
+      );
   }
   return $form;
 }
@@ -169,6 +188,9 @@ function proxythis_block_configure($delta = '') {
 function proxythis_block_save($delta = '', $edit = array()) {
   if($delta == 'proxythis'){
     variable_set('proxythis_pattern', $edit['proxythis_pattern']);
+    variable_set('proxythis_regex_search', $edit['proxythis_regex_search']);
+    variable_set('proxythis_regex_replace', $edit['proxythis_regex_replace']);
+    variable_set('proxythis_regex_validation', $edit['proxythis_regex_validation']);
   }
 }
 
