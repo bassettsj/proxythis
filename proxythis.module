@@ -1,8 +1,6 @@
 <?php
 /**
  * @file proxythis.module
- * 
- * 
  */
 
 
@@ -65,16 +63,9 @@ function proxythis_form($form, &$form_state){
         '#weight' => 200,
       );
     $form['submit']['#attributes']['style'] = 'display:none';
-  } //end if form submitted
-  
-
-  
-  
+  } //end if form submitted  
   return $form;
 }
-
-
-
 
 /**
  * Submit function for proxythis_form()
@@ -91,23 +82,24 @@ function proxythis_form_validate($form, &$form_state){
 
   $url = $form_state['values']['url'];
   
-  //check to see if the string starts with  http:// or https:// if it does..
+  //check to see if the string starts with  http:// or https://. If it doesn't lets add a http://
+  // @todo: add a better way to check the url.
   if (0 !== stripos($url, 'http://') || 0 !== stripos($url, 'https://')){
     $url = 'http://'.$url;
   }
   
   //check to see if the string already begins with the pattern.
-  if(0 === stripos($url, variable_get('proxythis_pattern', $default = 'http://ezproxy.neu.edu/login?url='))){
+  if(preg_match(variable_get('proxythis_regex_validation', ),$url ))
     form_set_error('url',t('This URL is already proxied, no change needed!'));
   }
 
   //check to see if it is a valid url.
-  if(!filter_var($url, FILTER_VALIDATE_URL)){
+  elseif(!filter_var($url, FILTER_VALIDATE_URL)){
     form_set_error('url',t('Please provide a valid url.'));
   }
   
   //check to see if the string was proxied from the old pattern then replace it.
-  if (preg_match("/\.ilsprod\.lib\.neu\.edu/", $url)){
+  else (preg_match("/\.ilsprod\.lib\.neu\.edu/", $url)){
     $url = preg_replace("/\.ilsprod\.lib\.neu\.edu/", '', $url);
     $url = preg_replace("/:\/\/[0-9]-/", "://", $url);
   }
@@ -130,8 +122,6 @@ function proxythis_block_info() {
 
   return $blocks;
 }
-
-
 
 /**
  * Implements hook_block_view().
@@ -186,4 +176,3 @@ function proxythis_block_save($delta = '', $edit = array()) {
     variable_set('proxythis_regex_validation', $edit['proxythis_regex_validation']);
   }
 }
-
