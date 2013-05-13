@@ -5,6 +5,31 @@
 
 
 /**
+ * Implements hook_libraries_info().
+ */
+function proxythis_libraries_info() {
+  $libraries['ZeroClipboard'] = array(
+    'name' => 'ZeroClipboard',
+    'vendor url' => 'https://github.com/jonrohan/ZeroClipboard',
+    'download url' => 'https://github.com/jonrohan/ZeroClipboard',
+    'version arguments' => array(
+      'file' => 'ZeroClipboard.min.js',
+      // 2.x: jQuery Masonry v2.1.05
+      'pattern' => '/v?([0-9\.]+)/',
+      'lines' => 7,
+    ),
+    'files' => array(
+      'js' => array('ZeroClipboard.min.js'),
+      'swf' => array('ZeroClipboard.swf'),
+    ),
+  );
+
+  return $libraries;
+}
+
+
+
+/**
  * render furntion for hook_menu();
  */
 function proxythis_view(){
@@ -16,7 +41,6 @@ function proxythis_view(){
  */
 
 function proxythis_form($form, &$form_state){
-  
   $form['url'] = array(
       '#title' => t('URL to be Converted'),
       '#type' => 'textfield',
@@ -32,6 +56,15 @@ function proxythis_form($form, &$form_state){
       '#weight' => 11, 
     );
   if($form_state['submitted']){
+    //Load the library.
+    
+    $zclip = libraries_load('ZeroClipboard');
+    $proxythis_js_init = 'jQuery(document).ready(function($) {
+        var clip = new ZeroClipboard($("#copy-dynamic"), {
+          moviePath: "' . $zclip['library path'] .'/'. $zclip['files']['swf'][0] .'",
+        });
+      });';
+
     //stating a shorted variable
     $modUrl = variable_get('proxythis_pattern', $default = 'http://ezproxy.neu.edu/login?url=') . $form_state['values']['url'];
 
@@ -49,10 +82,10 @@ function proxythis_form($form, &$form_state){
         '#size' => 45,
       );
     //get the module install path
-    $path = drupal_get_path('module','proxythis');
     $form['#attached']['js']= array(
-       $path .'/js/ZeroClipboard.min.js',
-       $path .'/js/init.js',
+       $proxythis_js_init => array(
+        'type' => 'inline'
+        )
       );
     $form['copy_link'] = array(
         '#markup' => '<a href="#" id="copy-dynamic" data-clipboard-text="'.$modUrl.'">' . t('Copy to Clipboard') . '</a>',
@@ -89,17 +122,17 @@ function proxythis_form_validate($form, &$form_state){
   }
   
   //check to see if the string already begins with the pattern.
-  if(preg_match(variable_get('proxythis_regex_validation', ),$url ))
+  if(preg_match(variable_get('proxythis_regex_validation'), $url) ){
     form_set_error('url',t('This URL is already proxied, no change needed!'));
   }
 
   //check to see if it is a valid url.
-  elseif(!filter_var($url, FILTER_VALIDATE_URL)){
+  if(!filter_var($url, FILTER_VALIDATE_URL)){
     form_set_error('url',t('Please provide a valid url.'));
   }
   
   //check to see if the string was proxied from the old pattern then replace it.
-  else (preg_match("/\.ilsprod\.lib\.neu\.edu/", $url)){
+  if (preg_match("/\.ilsprod\.lib\.neu\.edu/", $url)){
     $url = preg_replace("/\.ilsprod\.lib\.neu\.edu/", '', $url);
     $url = preg_replace("/:\/\/[0-9]-/", "://", $url);
   }
@@ -142,7 +175,6 @@ function proxythis_block_view($delta = '') {
  */
 function proxythis_block_configure($delta = '') {
   $form = array();
-
   if ($delta == 'proxythis'){
     $form['proxythis_regex_search'] = array(
       '#type' => 'textfield',
@@ -176,3 +208,10 @@ function proxythis_block_save($delta = '', $edit = array()) {
     variable_set('proxythis_regex_validation', $edit['proxythis_regex_validation']);
   }
 }
+
+
+
+
+
+
+

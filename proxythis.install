@@ -6,13 +6,3 @@
  */
 
 
-/**
- * Implements hook_uninstall().
- */
-function proxythis_uninstall() {
-  drupal_load('module', 'proxythis');
-  $variables = array_keys(proxythis_variables());
-  foreach ($variables as $variable) {
-    variable_del($variable);
-  }
-}
